@@ -13,7 +13,7 @@ mongoose.connect('mongodb://localhost/coffee');
 var User = mongoose.model('User', {
   _id: { type: String, required: true },
   password: { type: String, required: true },
-  authenticationTokens: [{ token: String, expiration: { type: Date, default: Date.now} }],
+  authenticationTokens: [{ token: String, expiration: Date }],
   orders: [{
     "options": {
       "grind": { type: String, required: true },
@@ -106,7 +106,7 @@ app.post('/login', function(req, res) {
         // if passwords match, generate token and push to users token array
         if (matched) {
           var token = randtoken.generate(64);
-          user.authenticationTokens.push({ token: token });
+          user.authenticationTokens.push({ token: token, expiration:  Date.now() + 1000 * 60 * 60 * 24 * 10 });
           // save user's new token
           user.save(function(err) {
             if (err) {
@@ -130,7 +130,7 @@ app.post('/orders', function(req, res) {
   var token = req.body.token;
   User.findOne(
     //check if token exists and hasn't expired (10 days)
-    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() - 1000 * 60 * 60 * 24 * 10 } } } },
+    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } },
     function(err, user) {
       //if there was an error finding the user by authenticationToken...
       if (err) {
@@ -167,7 +167,7 @@ app.get('/orders', function(req, res) {
   var token = req.query.token;
   User.findOne(
     //check if token exists and hasn't expired (10 days)
-    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() - 1000 * 60 * 60 * 24 * 10 } } } },
+    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } },
     function(err, user) {
       //if there was an error finding the user by authenticationToken
       if (err) {
