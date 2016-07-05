@@ -13,7 +13,7 @@ mongoose.connect('mongodb://localhost/coffee');
 var User = mongoose.model('User', {
   _id: { type: String, required: true },
   password: { type: String, required: true },
-  authenticationTokens: [String],
+  authenticationTokens: [{ token: String, expiration: { type: Date, default: Date.now} }],
   orders: [{
     "options": {
       "grind": { type: String, required: true },
@@ -79,7 +79,6 @@ app.post('/signup', function(req, res) {
       }
     });
   });
-
 });
 
 // handle login
@@ -90,7 +89,7 @@ app.post('/login', function(req, res) {
   // find user in database
   User.findOne({ _id: username }, function(err, user) {
     if (err) {
-      res.status(400).send({ "status": "fail", "message": err.message });
+      res.status(400).send({ "status": "fail", "message": "Error finding user " + err.message });
       return;
     }
     // if user isn't found
@@ -101,17 +100,17 @@ app.post('/login', function(req, res) {
       // compare submitted password with encrypted password in databse
       bcrypt.compare(password, user.password, function(err, matched) {
         if (err) {
-          res.status(400).send({ "status": "fail", "message": err.message });
+          res.status(400).send({ "status": "fail", "message": "Error in bcrypt: " + err.message });
           return;
         }
         // if passwords match, generate token and push to users token array
         if (matched) {
           var token = randtoken.generate(64);
-          user.authenticationTokens.push(token);
+          user.authenticationTokens.push({ token: token });
           // save user's new token
           user.save(function(err) {
             if (err) {
-              res.status(400).send({ "status": "fail", "message": err.message });
+              res.status(400).send({ "status": "fail", "message": "Error saving token: " + err.message });
               return;
             }
             // return token in response body
@@ -130,29 +129,34 @@ app.post('/login', function(req, res) {
 app.post('/orders', function(req, res) {
   var token = req.body.token;
   User.findOne(
-    { authenticationTokens: token },
+    //check if token exists and hasn't expired (10 days)
+    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() - 1000 * 60 * 60 * 24 * 10 } } } },
     function(err, user) {
       //if there was an error finding the user by authenticationToken...
       if (err) {
-        res.status(400).send({ "status": "fail", "message": err.errors });
+        res.status(400).send({ "status": "fail", "message": "err.errors" });
         return;
       }
-      // found user based on authentication token, push the order
-      // from the request to orders property on the user object
-      user.orders.push(req.body.order);
-      //save the user to the database
-      user.save(function(err) {
-        if (err) {
-          // construct a more readable error message
-          var errorMessage = "";
-          for (var key in err.errors) {
-            errorMessage += err.errors[key].message + " ";
+      // found user based on authentication token.
+      if (user) {
+        // push the order from the request to orders property on the user object
+        user.orders.push(req.body.order);
+        //save the user to the database
+        user.save(function(err) {
+          if (err) {
+            // construct a more readable error message
+            var errorMessage = "";
+            for (var key in err.errors) {
+              errorMessage += err.errors[key].message + " ";
+            }
+            res.status(400).send({ "status": "fail", "message": errorMessage });
+            return;
           }
-          res.status(400).send({ "status": "fail", "message": errorMessage });
-          return;
-        }
-        res.status(200).send({ "status": "ok" });
-      });
+          res.status(200).send({ "status": "ok" });
+        });
+      } else {
+        res.status(400).send({ "status": "fail", "message": "Session expired. Please sign in again." });
+      }
     }
   );
 });
@@ -162,15 +166,24 @@ app.get('/orders', function(req, res) {
   //find user by their token
   var token = req.query.token;
   User.findOne(
-    { authenticationTokens: token },
+    //check if token exists and hasn't expired (10 days)
+    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() - 1000 * 60 * 60 * 24 * 10 } } } },
     function(err, user) {
       //if there was an error finding the user by authenticationToken
       if (err) {
         res.status(400).send({ "status": "fail", "message": err.errors });
         return;
       }
-      //found the user, now respond with an object of all their order history
-      res.status(200).send({ "status": "ok", "message": user.orders});
+      if (user) {
+        //found the user, now respond with an object of all their order history
+        var orders = [];
+        user.orders.forEach(function(order) {
+          orders.push({ "options": order.options, "address": order.address });
+        });
+        res.status(200).send({ "status": "ok", "message": orders});
+      } else {
+        res.status(400).send({ "status": "fail", "message": "Session expired. Please sign in again." });
+      }
     }
   );
 });
