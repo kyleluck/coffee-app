@@ -2,6 +2,8 @@ var express = require('express');
 var bcrypt = require('bcrypt');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var randtoken = require('rand-token');
+
 var app = express();
 
 // connect to the database
@@ -10,63 +12,167 @@ mongoose.connect('mongodb://localhost/coffee');
 // mongodb model for users
 var User = mongoose.model('User', {
   _id: { type: String, required: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  authenticationTokens: [String],
+  orders: [{
+    "options": {
+      "grind": { type: String, required: true },
+      "quantity": { type: Number, required: true }
+    },
+    "address": {
+      "name": { type: String, required: true },
+      "address": { type: String, required: true },
+      "address2": String,
+      "city": { type: String, required: true },
+      "state": { type: String, required: true },
+      "zipCode": { type: String, required: true },
+      "deliveryDate": { type: Date, required: true }
+    }
+  }]
 });
 
 // use body parser with JSON
 app.use(bodyParser.json());
 
-// GET /options/list - list all available grind options
-app.get('/options/list', function(req, res) {
-  res.send('Hello World');
+// list all available grind options
+app.get('/options', function(req, res) {
+  res.send([
+    "Extra coarse",
+  	"Coarse",
+  	"Medium-coarse",
+  	"Medium",
+  	"Medium-fine",
+  	"Fine",
+  	"Extra fine"
+  ]);
 });
 
 // handle signups
 app.post('/signup', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
-  User.findOne({ _id: username }, function(err, user) {
+  bcrypt.hash(password, 10, function(err, encryptedPassword) {
     if (err) {
-      return console.error(err.message);
+      res.status(400).send({ "status": "fail", "message": err.message });
+      return;
     }
-    if (!user) {
-      // create user
-      
-    } else {
-      // user already exists, send 409
-      res.status(409);
-    }
+    User.findOne({ _id: username }, function(err, user) {
+      if (err) {
+        res.status(400).send({ "status": "fail", "message": err.message });
+        return;
+      }
+      if (!user) {
+        // create user
+        User.create({
+          _id: username,
+          password: encryptedPassword
+        }, function(err) {
+          if (err) {
+            res.status(400).send({ "status": "fail", "message": err.message });
+            return;
+          }
+          res.status(200).send({ "status": "ok" });
+        });
+      } else {
+        // user already exists, send 409
+        res.status(409).send({ "status": "fail", "message": "Username is taken" });
+      }
+    });
   });
+
 });
 
 // handle login
 app.post('/login', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
+
+  // find user in database
   User.findOne({ _id: username }, function(err, user) {
     if (err) {
-      return console.error(err.message);
+      res.status(400).send({ "status": "fail", "message": err.message });
+      return;
     }
+    // if user isn't found
     if (!user) {
-      res.send('User not found');
+      res.status(400).send({ "status": "fail", "message": "User not found" });
+      return;
     } else {
-      if (user.password === password) {
-        res.send('Authenticated');
-      } else {
-        res.send('Login failed');
-      }
+      // compare submitted password with encrypted password in databse
+      bcrypt.compare(password, user.password, function(err, matched) {
+        if (err) {
+          res.status(400).send({ "status": "fail", "message": err.message });
+          return;
+        }
+        // if passwords match, generate token and push to users token array
+        if (matched) {
+          var token = randtoken.generate(64);
+          user.authenticationTokens.push(token);
+          // save user's new token
+          user.save(function(err) {
+            if (err) {
+              res.status(400).send({ "status": "fail", "message": err.message });
+              return;
+            }
+            // return token in response body
+            res.status(200).send({ "status": "ok", "token": token });
+          });
+        } else {
+          // incorrect password
+          res.status(400).send({ "status": "fail", "message": "Password doesn't match" });
+        }
+      });
     }
   });
 });
 
 // allows users to order coffee, charges purchases with stripe
 app.post('/orders', function(req, res) {
-
+  var token = req.body.token;
+  User.findOne(
+    { authenticationTokens: token },
+    function(err, user) {
+      //if there was an error finding the user by authenticationToken...
+      if (err) {
+        res.status(400).send({ "status": "fail", "message": err.errors });
+        return;
+      }
+      // found user based on authentication token, push the order
+      // from the request to orders property on the user object
+      user.orders.push(req.body.order);
+      //save the user to the database
+      user.save(function(err) {
+        if (err) {
+          // construct a more readable error message
+          var errorMessage = "";
+          for (var key in err.errors) {
+            errorMessage += err.errors[key].message + " ";
+          }
+          res.status(400).send({ "status": "fail", "message": errorMessage });
+          return;
+        }
+        res.status(200).send({ "status": "ok" });
+      });
+    }
+  );
 });
 
 // returns all orders the user has previously submitted
 app.get('/orders', function(req, res) {
-
+  //find user by their token
+  var token = req.query.token;
+  User.findOne(
+    { authenticationTokens: token },
+    function(err, user) {
+      //if there was an error finding the user by authenticationToken
+      if (err) {
+        res.status(400).send({ "status": "fail", "message": err.errors });
+        return;
+      }
+      //found the user, now respond with an object of all their order history
+      res.status(200).send({ "status": "ok", "message": user.orders});
+    }
+  );
 });
 
 app.listen(3000, function() {
