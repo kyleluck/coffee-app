@@ -36,7 +36,7 @@ app.use(bodyParser.json());
 
 // list all available grind options
 app.get('/options', function(req, res) {
-  res.send([
+  res.json([
     "Extra coarse",
   	"Coarse",
   	"Medium-coarse",
