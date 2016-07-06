@@ -139,6 +139,7 @@ app.post('/orders', authRequired, function(req, res) {
   user.save()
     .then(function() {
       res.status(200).json({ "status": "ok" });
+      return null;
     })
     .catch(function(err) {
       // construct a more readable error message
