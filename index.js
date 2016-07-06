@@ -1,8 +1,10 @@
 var express = require('express');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-as-promised');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var randtoken = require('rand-token');
+var Promise = require('bluebird');
+mongoose.Promise = Promise; // use bluebird with mongoose
 
 var app = express();
 
@@ -51,31 +53,34 @@ app.get('/options', function(req, res) {
 app.post('/signup', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
-  bcrypt.hash(password, 10, function(err, encryptedPassword) {
-    if (err) {
-      res.status(400).json({ "status": "fail", "message": err.message });
-      return;
-    }
-    User.findOne({ _id: username })
-      .then(function(user) {
-        if (!user) {
-          // create user
-          User.create({
-            _id: username,
-            password: encryptedPassword
-          })
-          .then(function() {
-            res.status(200).json({ "status": "ok" });
-          });
-        } else {
-          // user already exists, json 409
-          res.status(409).json({ "status": "fail", "message": "Username is taken" });
-        }
-      })
-      .catch(function(err) {
-        res.status(400).json({ "status": "fail", "message": err.message });
-      });
-  });
+  bcrypt.hash(password, 10)
+    .then(function(encryptedPassword) {
+      return [encryptedPassword, User.findOne({ _id: username })];
+    })
+    .spread(function(encryptedPassword, user) {
+      if (!user) {
+        // create user
+        return User.create({
+          _id: username,
+          password: encryptedPassword
+        });
+      } else {
+        // user already exists, throw error with 409 status code
+        var error = new Error("Username is taken!");
+        error.statusCode = 409;
+        throw error;
+      }
+    })
+    .then(function() {
+      //successfully created user, respond with ok
+      res.status(200).json({ "status": "ok" });
+    })
+    .catch(function(err) {
+      if (!err.statusCode) {
+        err.statusCode = 400;
+      }
+      res.status(err.statusCode).json({ "status": "fail", "message": err.message });
+    });
 });
 
 // handle login
@@ -88,34 +93,38 @@ app.post('/login', function(req, res) {
     .then(function(user) {
       // if user isn't found
       if (!user) {
-        res.status(400).json({ "status": "fail", "message": "User not found" });
-        return;
+        throw new Error("User not found");
       } else {
-        // compare submitted password with encrypted password in databse
-        bcrypt.compare(password, user.password, function(err, matched) {
-          if (err) {
-            res.status(400).json({ "status": "fail", "message": "Error in bcrypt: " + err.message });
-            return;
-          }
-          // if passwords match, generate token and push to users token array
-          if (matched) {
-            var token = randtoken.generate(64);
-            // set token to expire in 10 days and push to authenticationTokens array
-            user.authenticationTokens.push({ token: token, expiration:  Date.now() + 1000 * 60 * 60 * 24 * 10 });
-            // save user's new token
-            user.save()
-              .then(function() {
-                // return token in response body
-                res.status(200).json({ "status": "ok", "token": token });
-              });
-          } else {
-            // incorrect password
-            res.status(400).json({ "status": "fail", "message": "Password doesn't match" });
-          }
-        });
+        // compare submitted password with encrypted password in database
+        return [user, bcrypt.compare(password, user.password)];
       }
     })
+    .spread(function(user, matched) {
+      // return token in response body
+      if (matched) {
+        var token = randtoken.generate(64);
+        // set token to expire in 10 days and push to authenticationTokens array
+        user.authenticationTokens.push({ token: token, expiration:  Date.now() + 1000 * 60 * 60 * 24 * 10 });
+        // save user's new token
+        /*
+          changing to return user.save() which will go to the next .then()
+          throw error which will be caught by .catch() if incorrect password
+        */
+        return [token, user.save()];
+      } else {
+        // incorrect password, throw error
+        throw new Error("Incorrect password!");
+      }
+    })
+    .spread(function(token) {
+      res.status(200).json({ "status": "ok", "token": token });
+    })
+    .catch(bcrypt.MISMATCH_ERROR, function() {
+      console.log('IN MISMATCH_ERROR catch...');
+      res.status(400).json({ "status": "fail", "message": "Invalid password" });
+    })
     .catch(function(err) {
+      console.error(err.stack);
       res.status(400).json({ "status": "fail", "message": err.message });
     });
 });
