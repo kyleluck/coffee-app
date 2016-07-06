@@ -106,6 +106,7 @@ app.post('/login', function(req, res) {
         // if passwords match, generate token and push to users token array
         if (matched) {
           var token = randtoken.generate(64);
+          // set token to expire in 10 days and push to authenticationTokens array
           user.authenticationTokens.push({ token: token, expiration:  Date.now() + 1000 * 60 * 60 * 24 * 10 });
           // save user's new token
           user.save(function(err) {
@@ -129,7 +130,7 @@ app.post('/login', function(req, res) {
 app.post('/orders', function(req, res) {
   var token = req.body.token;
   User.findOne(
-    //check if token exists and hasn't expired (10 days)
+    //check if token exists and hasn't expired
     { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } },
     function(err, user) {
       //if there was an error finding the user by authenticationToken...
@@ -166,7 +167,7 @@ app.get('/orders', function(req, res) {
   //find user by their token
   var token = req.query.token;
   User.findOne(
-    //check if token exists and hasn't expired (10 days)
+    //check if token exists and hasn't expired
     { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } },
     function(err, user) {
       //if there was an error finding the user by authenticationToken
