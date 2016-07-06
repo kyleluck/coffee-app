@@ -56,28 +56,25 @@ app.post('/signup', function(req, res) {
       res.status(400).json({ "status": "fail", "message": err.message });
       return;
     }
-    User.findOne({ _id: username }, function(err, user) {
-      if (err) {
+    User.findOne({ _id: username })
+      .then(function(user) {
+        if (!user) {
+          // create user
+          User.create({
+            _id: username,
+            password: encryptedPassword
+          })
+          .then(function() {
+            res.status(200).json({ "status": "ok" });
+          });
+        } else {
+          // user already exists, json 409
+          res.status(409).json({ "status": "fail", "message": "Username is taken" });
+        }
+      })
+      .catch(function(err) {
         res.status(400).json({ "status": "fail", "message": err.message });
-        return;
-      }
-      if (!user) {
-        // create user
-        User.create({
-          _id: username,
-          password: encryptedPassword
-        }, function(err) {
-          if (err) {
-            res.status(400).json({ "status": "fail", "message": err.message });
-            return;
-          }
-          res.status(200).json({ "status": "ok" });
-        });
-      } else {
-        // user already exists, json 409
-        res.status(409).json({ "status": "fail", "message": "Username is taken" });
-      }
-    });
+      });
   });
 });
 
@@ -87,43 +84,40 @@ app.post('/login', function(req, res) {
   var password = req.body.password;
 
   // find user in database
-  User.findOne({ _id: username }, function(err, user) {
-    if (err) {
-      res.status(400).json({ "status": "fail", "message": "Error finding user " + err.message });
-      return;
-    }
-    // if user isn't found
-    if (!user) {
-      res.status(400).json({ "status": "fail", "message": "User not found" });
-      return;
-    } else {
-      // compare submitted password with encrypted password in databse
-      bcrypt.compare(password, user.password, function(err, matched) {
-        if (err) {
-          res.status(400).json({ "status": "fail", "message": "Error in bcrypt: " + err.message });
-          return;
-        }
-        // if passwords match, generate token and push to users token array
-        if (matched) {
-          var token = randtoken.generate(64);
-          // set token to expire in 10 days and push to authenticationTokens array
-          user.authenticationTokens.push({ token: token, expiration:  Date.now() + 1000 * 60 * 60 * 24 * 10 });
-          // save user's new token
-          user.save(function(err) {
-            if (err) {
-              res.status(400).json({ "status": "fail", "message": "Error saving token: " + err.message });
-              return;
-            }
-            // return token in response body
-            res.status(200).json({ "status": "ok", "token": token });
-          });
-        } else {
-          // incorrect password
-          res.status(400).json({ "status": "fail", "message": "Password doesn't match" });
-        }
-      });
-    }
-  });
+  User.findOne({ _id: username })
+    .then(function(user) {
+      // if user isn't found
+      if (!user) {
+        res.status(400).json({ "status": "fail", "message": "User not found" });
+        return;
+      } else {
+        // compare submitted password with encrypted password in databse
+        bcrypt.compare(password, user.password, function(err, matched) {
+          if (err) {
+            res.status(400).json({ "status": "fail", "message": "Error in bcrypt: " + err.message });
+            return;
+          }
+          // if passwords match, generate token and push to users token array
+          if (matched) {
+            var token = randtoken.generate(64);
+            // set token to expire in 10 days and push to authenticationTokens array
+            user.authenticationTokens.push({ token: token, expiration:  Date.now() + 1000 * 60 * 60 * 24 * 10 });
+            // save user's new token
+            user.save()
+              .then(function() {
+                // return token in response body
+                res.status(200).json({ "status": "ok", "token": token });
+              });
+          } else {
+            // incorrect password
+            res.status(400).json({ "status": "fail", "message": "Password doesn't match" });
+          }
+        });
+      }
+    })
+    .catch(function(err) {
+      res.status(400).json({ "status": "fail", "message": err.message });
+    });
 });
 
 // allows users to order coffee, charges purchases with stripe
@@ -133,18 +127,18 @@ app.post('/orders', authRequired, function(req, res) {
   var user = req.user;
   user.orders.push(req.body.order);
   //save the user to the database
-  user.save(function(err) {
-    if (err) {
+  user.save()
+    .then(function() {
+      res.status(200).json({ "status": "ok" });
+    })
+    .catch(function(err) {
       // construct a more readable error message
       var errorMessage = "";
       for (var key in err.errors) {
         errorMessage += err.errors[key].message + " ";
       }
       res.status(400).json({ "status": "fail", "message": errorMessage });
-      return;
-    }
-    res.status(200).json({ "status": "ok" });
-  });
+    });
 });
 
 // returns all orders the user has previously submitted
@@ -165,20 +159,18 @@ function authRequired(req, res, next) {
   var token = req.query.token ? req.query.token : req.body.token;
   User.findOne(
     //check if token exists and hasn't expired
-    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } },
-    function(err, user) {
-      //if there was an error finding the user by authenticationToken
-      if (err) {
-        res.status(400).json({ "status": "fail", "message": err.errors });
-        return;
-      }
+    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } })
+    .then(function(user) {
       if (user) {
         req.user = user;
         next();
       } else {
         res.status(400).json({ "status": "fail", "message": "Session expired. Please sign in again." });
-        return;
       }
+    })
+    .catch(function(err) {
+      //if there was an error finding the user by authenticationToken
+      res.status(400).json({ "status": "fail", "message": err.errors });
     });
 }
 
