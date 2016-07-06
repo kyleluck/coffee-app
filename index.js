@@ -127,45 +127,42 @@ app.post('/login', function(req, res) {
 });
 
 // allows users to order coffee, charges purchases with stripe
-app.post('/orders', function(req, res) {
-  var token = req.body.token;
-  User.findOne(
-    //check if token exists and hasn't expired
-    { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } },
-    function(err, user) {
-      //if there was an error finding the user by authenticationToken...
-      if (err) {
-        res.status(400).json({ "status": "fail", "message": "err.errors" });
-        return;
+app.post('/orders', authRequired, function(req, res) {
+  // user is authenticated
+  // push the order from the request to orders property on the user object
+  var user = req.user;
+  user.orders.push(req.body.order);
+  //save the user to the database
+  user.save(function(err) {
+    if (err) {
+      // construct a more readable error message
+      var errorMessage = "";
+      for (var key in err.errors) {
+        errorMessage += err.errors[key].message + " ";
       }
-      // found user based on authentication token.
-      if (user) {
-        // push the order from the request to orders property on the user object
-        user.orders.push(req.body.order);
-        //save the user to the database
-        user.save(function(err) {
-          if (err) {
-            // construct a more readable error message
-            var errorMessage = "";
-            for (var key in err.errors) {
-              errorMessage += err.errors[key].message + " ";
-            }
-            res.status(400).json({ "status": "fail", "message": errorMessage });
-            return;
-          }
-          res.status(200).json({ "status": "ok" });
-        });
-      } else {
-        res.status(400).json({ "status": "fail", "message": "Session expired. Please sign in again." });
-      }
+      res.status(400).json({ "status": "fail", "message": errorMessage });
+      return;
     }
-  );
+    res.status(200).json({ "status": "ok" });
+  });
 });
 
 // returns all orders the user has previously submitted
-app.get('/orders', function(req, res) {
-  //find user by their token
-  var token = req.query.token;
+app.get('/orders', authRequired, function(req, res) {
+  // user is authenticated
+  // respond with an object of all their order history
+  var orders = [];
+  var user = req.user;
+  user.orders.forEach(function(order) {
+    orders.push({ "options": order.options, "address": order.address });
+  });
+  res.status(200).json({ "status": "ok", "message": orders});
+});
+
+// function to handle authentication
+function authRequired(req, res, next) {
+  // assign token variable depending on if it's a GET or POST
+  var token = req.query.token ? req.query.token : req.body.token;
   User.findOne(
     //check if token exists and hasn't expired
     { authenticationTokens: { $elemMatch: { token: token, expiration: { $gt: Date.now() } } } },
@@ -176,18 +173,14 @@ app.get('/orders', function(req, res) {
         return;
       }
       if (user) {
-        //found the user, now respond with an object of all their order history
-        var orders = [];
-        user.orders.forEach(function(order) {
-          orders.push({ "options": order.options, "address": order.address });
-        });
-        res.status(200).json({ "status": "ok", "message": orders});
+        req.user = user;
+        next();
       } else {
         res.status(400).json({ "status": "fail", "message": "Session expired. Please sign in again." });
+        return;
       }
-    }
-  );
-});
+    });
+}
 
 app.listen(3000, function() {
   console.log('Listening on 3000...');
