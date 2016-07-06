@@ -53,12 +53,12 @@ app.post('/signup', function(req, res) {
   var password = req.body.password;
   bcrypt.hash(password, 10, function(err, encryptedPassword) {
     if (err) {
-      res.status(400).send({ "status": "fail", "message": err.message });
+      res.status(400).json({ "status": "fail", "message": err.message });
       return;
     }
     User.findOne({ _id: username }, function(err, user) {
       if (err) {
-        res.status(400).send({ "status": "fail", "message": err.message });
+        res.status(400).json({ "status": "fail", "message": err.message });
         return;
       }
       if (!user) {
@@ -68,14 +68,14 @@ app.post('/signup', function(req, res) {
           password: encryptedPassword
         }, function(err) {
           if (err) {
-            res.status(400).send({ "status": "fail", "message": err.message });
+            res.status(400).json({ "status": "fail", "message": err.message });
             return;
           }
-          res.status(200).send({ "status": "ok" });
+          res.status(200).json({ "status": "ok" });
         });
       } else {
-        // user already exists, send 409
-        res.status(409).send({ "status": "fail", "message": "Username is taken" });
+        // user already exists, json 409
+        res.status(409).json({ "status": "fail", "message": "Username is taken" });
       }
     });
   });
@@ -89,18 +89,18 @@ app.post('/login', function(req, res) {
   // find user in database
   User.findOne({ _id: username }, function(err, user) {
     if (err) {
-      res.status(400).send({ "status": "fail", "message": "Error finding user " + err.message });
+      res.status(400).json({ "status": "fail", "message": "Error finding user " + err.message });
       return;
     }
     // if user isn't found
     if (!user) {
-      res.status(400).send({ "status": "fail", "message": "User not found" });
+      res.status(400).json({ "status": "fail", "message": "User not found" });
       return;
     } else {
       // compare submitted password with encrypted password in databse
       bcrypt.compare(password, user.password, function(err, matched) {
         if (err) {
-          res.status(400).send({ "status": "fail", "message": "Error in bcrypt: " + err.message });
+          res.status(400).json({ "status": "fail", "message": "Error in bcrypt: " + err.message });
           return;
         }
         // if passwords match, generate token and push to users token array
@@ -111,15 +111,15 @@ app.post('/login', function(req, res) {
           // save user's new token
           user.save(function(err) {
             if (err) {
-              res.status(400).send({ "status": "fail", "message": "Error saving token: " + err.message });
+              res.status(400).json({ "status": "fail", "message": "Error saving token: " + err.message });
               return;
             }
             // return token in response body
-            res.status(200).send({ "status": "ok", "token": token });
+            res.status(200).json({ "status": "ok", "token": token });
           });
         } else {
           // incorrect password
-          res.status(400).send({ "status": "fail", "message": "Password doesn't match" });
+          res.status(400).json({ "status": "fail", "message": "Password doesn't match" });
         }
       });
     }
@@ -135,7 +135,7 @@ app.post('/orders', function(req, res) {
     function(err, user) {
       //if there was an error finding the user by authenticationToken...
       if (err) {
-        res.status(400).send({ "status": "fail", "message": "err.errors" });
+        res.status(400).json({ "status": "fail", "message": "err.errors" });
         return;
       }
       // found user based on authentication token.
@@ -150,13 +150,13 @@ app.post('/orders', function(req, res) {
             for (var key in err.errors) {
               errorMessage += err.errors[key].message + " ";
             }
-            res.status(400).send({ "status": "fail", "message": errorMessage });
+            res.status(400).json({ "status": "fail", "message": errorMessage });
             return;
           }
-          res.status(200).send({ "status": "ok" });
+          res.status(200).json({ "status": "ok" });
         });
       } else {
-        res.status(400).send({ "status": "fail", "message": "Session expired. Please sign in again." });
+        res.status(400).json({ "status": "fail", "message": "Session expired. Please sign in again." });
       }
     }
   );
@@ -172,7 +172,7 @@ app.get('/orders', function(req, res) {
     function(err, user) {
       //if there was an error finding the user by authenticationToken
       if (err) {
-        res.status(400).send({ "status": "fail", "message": err.errors });
+        res.status(400).json({ "status": "fail", "message": err.errors });
         return;
       }
       if (user) {
@@ -181,9 +181,9 @@ app.get('/orders', function(req, res) {
         user.orders.forEach(function(order) {
           orders.push({ "options": order.options, "address": order.address });
         });
-        res.status(200).send({ "status": "ok", "message": orders});
+        res.status(200).json({ "status": "ok", "message": orders});
       } else {
-        res.status(400).send({ "status": "fail", "message": "Session expired. Please sign in again." });
+        res.status(400).json({ "status": "fail", "message": "Session expired. Please sign in again." });
       }
     }
   );
