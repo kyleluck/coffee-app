@@ -1,0 +1,78 @@
+<div class="container-fluid">
+  <div class="row header">
+    <div class="col col-xs-12">
+      <img class="img-responsive logo" src="/images/dc-roasters.png" alt="logo" />
+    </div>
+  </div>
+  <div class="row navigation">
+    <div class="col col-xs-12">
+      <ul class="nav nav-pills nav-justified">
+        <li role="presentation" class="active"><a href="#">Home</a></li>
+        <li role="presentation"><a href="#">Options</a></li>
+        <li role="presentation"><a href="#">Delivery</a></li>
+        <li role="presentation"><a href="#">Payment</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-xs-12">
+        <h3>Tell us what you want!</h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-xs-6 text-center">
+      <div class="well">
+        <h3>Individual Package</h3>
+        <h5>For those who drink alone</h5>
+        <img src="images/solo-drinker.jpg" alt="solo drinker" class="img-responsive well-image">
+        <form ng-submit="orderIndividual()">
+          <div class="row">
+            <div class="col col-xs-6 option-labels">
+              <p>Cups:</p>
+              <p>Price per Cup:</p>
+              <p>Total:</p>
+              <p>Grind type:</p>
+            </div>
+            <div class="col col-xs-6 option-values">
+              <input type="number" ng-model="quantityInd"/>
+              <p>$0.50</p>
+              <p>$7.00</p>
+              <select ng-model="grindTypeInd">
+                <option ng-repeat="option in options" value="{{ option }}">{{ option }}</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn green-btn">Order</button>
+        </form>
+      </div>
+    </div>
+    <div class="col col-xs-6 text-center">
+      <div class="well">
+        <h3>Family Package</h3>
+        <h5>For those who drink together</h5>
+        <img src="images/coffee-drinkers.jpg" alt="family drinkers" class="img-responsive well-image">
+        <form ng-submit="orderFamily()">
+          <div class="row">
+            <div class="col col-xs-6 option-labels">
+              <p>Cups:</p>
+              <p>Price per Cup:</p>
+              <p>Total:</p>
+              <p>Grind type:</p>
+            </div>
+            <div class="col col-xs-6 option-values">
+              <input type="number" ng-model="quantityFam"/>
+              <p>$0.50</p>
+              <p>$7.00</p>
+              <select ng-model="grindTypeFam">
+                <option ng-repeat="option in options" value="{{ option }}">{{ option }}</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn green-btn">Order</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> <!-- end container -->

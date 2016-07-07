@@ -1,27 +1,32 @@
 <div class="container-fluid">
   <div class="row header">
     <div class="col col-xs-12">
-
+      <img class="img-responsive logo" src="/images/dc-roasters.png" alt="logo" />
     </div>
   </div>
-
   <div class="row navigation">
-    <div class="col col-md-2 col-offset-2">Home</div>
-    <div class="col col-md-2">Options</div>
-    <div class="col col-md-2">Delivery</div>
-    <div class="col col-md-2">Payment</div>
+    <div class="col col-xs-12">
+      <ul class="nav nav-pills nav-justified">
+        <li role="presentation" class="active"><a href="#">Home</a></li>
+        <li role="presentation"><a href="#">Options</a></li>
+        <li role="presentation"><a href="#">Delivery</a></li>
+        <li role="presentation"><a href="#">Payment</a></li>
+      </ul>
+    </div>
   </div>
 
   <div class="row hero">
     <div class="col col-xs-12">
-      <h3>Whole beans in half the time</h3>
-      <h6>Freshly roasted coffee beans delivered weekly to your door</h6>
+      <div class="hero-text">
+        <h3>Whole beans in half the time</h3>
+        <h6>Freshly roasted coffee beans delivered weekly to your door</h6>
+      </div>
     </div>
   </div>
 
   <div class="row howitworks">
-    <div class="col col-xs-12">
-
+    <div class="col col-xs-12 text-center">
+      <h3>How It Works</h3>
     </div>
   </div>
 
@@ -37,7 +42,10 @@
   </div>
 
   <div class="row two">
-    <div class="col col-xs-12">
+    <div class="col col-xs-4">
+      <img class="grower" src="/images/grower.jpg" alt="grower" />
+    </div>
+    <div class="col col-xs-8">
       <h4>2. We pick up the coffee</h4>
       <ul>
         <li>We place the coffee in bags</li>
@@ -58,9 +66,9 @@
     </div>
   </div>
 
-  <div class="row started">
+  <div class="row started text-center">
     <div class="col col-xs-12">
-      <button class="btn">Get Started</button>
+      <button ng-click="directToOptions()" class="btn green-btn"  >Get Started</button>
       <h4>Want to know more about us?</h4>
       <button class="btn">Our Story</button>
     </div>

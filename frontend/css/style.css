@@ -1,0 +1,96 @@
+body {
+  background-color: #edebe6;
+}
+
+.header, .green-btn{
+  background-color: #284741;
+  color: white;
+}
+
+.logo {
+  padding: 10px;
+}
+
+.nav-pills>li>a{
+  color: white;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover {
+  background-color: #d5b99d;
+}
+
+.nav>li>a:hover {
+  color: black;
+}
+
+.navigation {
+  background: #808080;
+}
+
+.hero {
+  background: url("../images/coffee.jpg") center no-repeat scroll;
+  background-position: 50% 74%;
+  height: 300px;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.hero-text {
+  vertical-align: middle;
+}
+
+.one {
+  background: url("../images/coffee-bags.jpg") center no-repeat scroll;
+  background-position: 50% 74%;
+  height: 300px;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  color: white;
+}
+
+.two {
+  height: 300px;
+}
+
+.grower{
+  width: 70%;
+  border: 10px solid white;
+  -ms-transform: rotate(-15deg); /* IE 9 */
+  -webkit-transform: rotate(-15deg); /* Safari */
+  transform: rotate(-15deg); /* Standard syntax */
+  margin-left: 50px;
+  margin-top: 50px;
+}
+
+.three {
+  background: url("../images/cup-steam.jpg") center no-repeat scroll;
+  background-position: 50% 22%;
+  height: 300px;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  color: white;
+}
+
+.started {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.well-image {
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+.option-labels {
+  text-align: right;
+}
+
+.option-values {
+  text-align: left;
+}
