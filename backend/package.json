@@ -21,6 +21,7 @@
     "bcrypt-as-promised": "^1.1.0",
     "bluebird": "^3.4.1",
     "body-parser": "^1.15.2",
+    "cors": "^2.7.1",
     "express": "^4.14.0",
     "mongoose": "^4.5.3",
     "rand-token": "^0.2.1"

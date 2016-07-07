@@ -1,4 +1,5 @@
 var express = require('express');
+var cors = require('cors');
 var bcrypt = require('bcrypt-as-promised');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
@@ -35,6 +36,9 @@ var User = mongoose.model('User', {
 
 // use body parser with JSON
 app.use(bodyParser.json());
+
+// use cors
+app.use(cors());
 
 // list all available grind options
 app.get('/options', function(req, res) {
@@ -185,6 +189,6 @@ function authRequired(req, res, next) {
     });
 }
 
-app.listen(3000, function() {
-  console.log('Listening on 3000...');
+app.listen(8000, function() {
+  console.log('Listening on 8000...');
 });
