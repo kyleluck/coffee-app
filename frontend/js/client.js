@@ -1,5 +1,5 @@
 // define app module with ngRoute and ngCookies dependencies
-var coffeeApp = angular.module('coffeeApp', ['ngRoute', 'ngCookies']);
+var coffeeApp = angular.module('coffeeApp', ['ngRoute', 'ngCookies', 'ngMessages']);
 
 var API = "http://localhost:8000";
 
@@ -124,22 +124,23 @@ coffeeApp.controller('PaymentController', function($scope, $http, $location) {
 
 coffeeApp.controller('LoginController', function($scope, $http, $location, $rootScope, $cookies) {
   $scope.login = function() {
-    $http.post(API + '/login', { username: $scope.username, password: $scope.password })
-      .then(function(response) {
-        // if login is a success, redirect
-        if (response.status === 200) {
-          // set a cookie with the token from the database response
-          $cookies.put('token', response.data.token);
-          // redirect to the page they were trying to go to
-          $location.path('/' + $rootScope.goHere);
-        } else {
+    if ($scope.loginForm.$valid) {
+      $http.post(API + '/login', { username: $scope.username, password: $scope.password })
+        .then(function(response) {
+          // if login is a success, redirect
+          if (response.status === 200) {
+            $scope.loginFailed = false;
+            // set a cookie with the token from the database response
+            $cookies.put('token', response.data.token);
+            // redirect to the page they were trying to go to
+            $location.path('/' + $rootScope.goHere);
+          }
+        })
+        .catch(function(err) {
           // tell user login wasn't successful
-        }
-        console.log(response);
-      })
-      .catch(function(err) {
-        console.log(err);
-      });
+          $scope.loginFailed = true;
+        });
+    }
   };
   $scope.registration = function(){
     $location.path("/register");

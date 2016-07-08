@@ -94,3 +94,14 @@ body {
 .option-values {
   text-align: left;
 }
+
+input.ng-invalid.ng-dirty {
+  border: 1px solid red;
+}
+
+form > label, button {
+  margin-top: 15px;
+}
+.passwordConfirm {
+  margin-top: 5px;
+}
