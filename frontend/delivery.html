@@ -16,11 +16,38 @@
   </div>
 
   <div class="row">
-    <div class="col col-xs-12 text-center">
+    <div class="col col-xs-12 col-md-6 col-md- text-center">
         <h3>Please enter your shipping information.</h3>
-        <form>
+        <form ng-submit="processDeliveryInfo()" novalidate>
           <label for="fullname">Full Name</label>
-          <input type="text" id="fullname"/>
+          <br>
+          <input type="text" id="fullname" ng-model="fullname" required/>
+          <br>
+          <label for="address1">Address Line 1</label>
+          <br>
+          <input type="text" id="address1" ng-model="address1" required/>
+          <br>
+          <label for="address2">Address Line 2</label>
+          <br>
+          <input type="text" id="address2" ng-model="address2"/>
+          <br>
+          <label for="city">City</label>
+          <br>
+          <input type="text" id="city" ng-model="city" required/>
+          <br>
+          <label for="state">State</label>
+          <br>
+          <input type="text" id="state" ng-model="state" required/>
+          <br>
+          <label for="zipcode">Zip Code</label>
+          <br>
+          <input type="text" id="zipcode" ng-model="zipcode" required/>
+          <br>
+          <label for="date">Delivery Date</label>
+          <br>
+          <input type="date" id="date" ng-model="date" required/>
+          <br>
+          <button type="submit" class="green-btn btn">Submit</button>
         </form>
     </div>
   </div>

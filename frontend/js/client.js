@@ -73,6 +73,13 @@ coffeeApp.controller('OptionsController', function($scope, $http, $location) {
     $location.path("/delivery");  };
 });
 
-coffeeApp.controller('DeliveryController', function() {
-  
+coffeeApp.controller('DeliveryController', function($scope) {
+  $scope.processDeliveryInfo = function() {
+    order.fullname = $scope.fullname;
+    order.address1 = $scope.address1;
+    order.address2 = $scope.address2;
+    order.zipcode = $scope.zipcode;
+    order.date = $scope.date;
+    console.log(order);
+  };
 });
