@@ -7,8 +7,26 @@
     <link rel="stylesheet" href="css/style.css" media="screen" title="no title" charset="utf-8">
   </head>
   <body>
+    <div class="container-fluid">
+      <div class="row header">
+        <div class="col col-xs-12">
+          <img class="img-responsive logo" src="/images/dc-roasters.png" alt="logo" />
+        </div>
+      </div>
+      <div class="row navigation">
+        <div class="col col-xs-12">
+          <ul class="nav nav-pills nav-justified">
+            <li role="presentation" class="active"><a href="#/">Home</a></li>
+            <li role="presentation"><a href="#/options">Options</a></li>
+            <li role="presentation"><a href="#/delivery">Delivery</a></li>
+            <li role="presentation"><a href="#/payment">Payment</a></li>
+          </ul>
+        </div>
+      </div> <!-- end navigation> -->
 
-    <ng-view></ng-view>
+      <ng-view></ng-view>
+
+    </div> <!-- end container -->
 
     <script src="js/angular.js"></script>
     <script src="js/angular-route.js"></script>
