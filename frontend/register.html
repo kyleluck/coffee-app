@@ -1,0 +1,25 @@
+<div class="row">
+  <div class="col col-xs-12">
+    <div class="well">
+      <h3>Register</h3>
+      <form ng-submit="register()" novalidate>
+        <label for="username">Username:</label>
+        <br>
+        <input type="text" id="username" ng-model="username" required placeholder="Username..."/>
+        <br>
+        <label for="password">Password:</label>
+        <br>
+        <input type="password" ng-model="password" required placeholder="Password..."/>
+        <br>
+        <input type="password" ng-model="passwordConfirm" required placeholder="Confirm Password..."/>
+        <br>
+        <label for="email">Email:</label>
+        <br>
+        <input type="text" ng-model="email" required placeholder="example@example.com"/>
+        <br>
+        <button type="submit" class="btn green-btn">Register</button>
+      </form>
+      <p ng-show="registered">You've successfully registered and may now login. <button type="button" class="btn green-btn" ng-click="redirectToLogin()">Login</button></p>
+    </div>
+  </div>
+</div>

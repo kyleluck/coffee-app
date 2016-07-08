@@ -141,4 +141,35 @@ coffeeApp.controller('LoginController', function($scope, $http, $location, $root
         console.log(err);
       });
   };
+  $scope.registration = function(){
+    $location.path("/register");
+  };
+});
+
+
+coffeeApp.controller("ThankyouController", function($location, $scope){
+// Redirecting the customer to options page
+  $scope.directToOptions = function(){
+    $location.path("/options");
+  };
+});
+
+coffeeApp.controller('RegisterController', function($scope, $location, $http) {
+  $scope.register = function() {
+    $http.post(API + '/signup', { username: $scope.username, password: $scope.password })
+      .then(function(response) {
+        if (response.status === 200) {
+          // user successfully created
+          $scope.registered = true;
+        }
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
+  };
+
+  // if they've registered and clicked the login button, redirect to the login page
+  $scope.redirectToLogin = function() {
+    $location.path('/login');
+  };
 });
