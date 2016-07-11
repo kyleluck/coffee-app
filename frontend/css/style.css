@@ -117,3 +117,7 @@ form > label, button {
 .well img {
   padding-bottom: 10px;
 }
+
+.formInput {
+  padding: 10px;
+}
