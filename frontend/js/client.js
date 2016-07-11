@@ -117,7 +117,7 @@ coffeeApp.controller('DeliveryController', function($scope, $location) {
 coffeeApp.controller('PaymentController', function($scope, $http, $location, $cookies) {
   // attach current order information to scope
   $scope.order = order;
-  var amount = order.amount;
+  var amount = order.amount * 100;
   var userToken = $cookies.get('token');
 
   $scope.processPayment = function() {
