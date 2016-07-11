@@ -2,7 +2,7 @@
   <div class="col col-xs-12">
     <div class="well">
       <h3>Login</h3>
-      <form name="loginForm" ng-submit="login()" novalidate>
+      <form name="loginForm" ng-submit="loginForm.$valid && login()" novalidate>
         <label for="username">Username:</label>
         <br>
         <input type="text" ng-model="username" name="username" class="formInput" required/>
@@ -18,7 +18,7 @@
           <div ng-message="required">Password is required</div>
         </div>
         <p ng-show="loginFailed">Username or password incorrect.</p>
-        <button type="submit" class="btn green-btn">Login</button>
+        <button type="submit" class="btn green-btn" ng-disabled="loginForm.$invalid">Login</button>
         <button ng-click="registration()" type="button" class="btn green-btn">Sign up</button>
       </form>
     </div>
