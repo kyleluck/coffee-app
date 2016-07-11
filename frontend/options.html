@@ -17,6 +17,7 @@
             <p>Price per Pound:</p>
             <p>Total:</p>
             <p>Grind type:</p>
+            <p>Delivery Frequency:</p>
           </div>
           <div class="col col-xs-6 option-values">
             <input type="number" ng-model="quantityInd" min="1" ng-init="quantityInd=1" required/>
@@ -30,6 +31,15 @@
             </select>
             <div ng-messages="individualForm.grindTypeInd.$error" ng-if="individualForm.grindTypeInd.$dirty">
               <div ng-message="required">Please select a grind type</div>
+            </div>
+            <br>
+            <select name="frequencyInd" ng-model="frequencyInd" required>
+              <option value="monthly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="monthly">Quarterly</option>
+            </select>
+            <div ng-messages="individualForm.frequencyInd.$error" ng-if="individualForm.frequencyInd.$dirty">
+              <div ng-message="required">Please select a delivery frequency</div>
             </div>
           </div>
         </div>
@@ -49,6 +59,7 @@
             <p>Price per Pound:</p>
             <p>Total:</p>
             <p>Grind type:</p>
+            <p>Delivery Frequency:</p>
           </div>
           <div class="col col-xs-6 option-values">
             <input type="number" ng-model="quantityFam" min="1" ng-init="quantityFam=1" required/>
@@ -62,6 +73,15 @@
             </select>
             <div ng-messages="familyForm.grindTypeFam.$error" ng-if="familyForm.grindTypeFam.$dirty">
               <div ng-message="required">Please select a grind type</div>
+            </div>
+            <br>
+            <select name="frequencyFam" ng-model="frequencyFam" required>
+              <option value="monthly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="monthly">Quarterly</option>
+            </select>
+            <div ng-messages="individualForm.frequencyFam.$error" ng-if="individualForm.frequencyFam.$dirty">
+              <div ng-message="required">Please select a delivery frequency</div>
             </div>
           </div>
         </div>

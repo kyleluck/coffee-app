@@ -5,6 +5,8 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var randtoken = require('rand-token');
 var Promise = require('bluebird');
+var stripe = require('stripe')('sk_test_21GqyNJXaHJvtsAXM5ajuM9k');
+
 mongoose.Promise = Promise; // use bluebird with mongoose
 
 var app = express();
@@ -137,8 +139,28 @@ app.post('/login', function(req, res) {
 app.post('/orders', authRequired, function(req, res) {
   // user is authenticated
   // push the order from the request to orders property on the user object
+  // req.user is set in authRequired
   var user = req.user;
-  user.orders.push(req.body.order);
+
+  //format order in order to save to the database
+  var deliveryDate = new Date(req.body.order.date);
+  var order = {
+    "options": {
+      "quantity": req.body.order.quantity,
+      "grind": req.body.order.grindType
+    },
+    "address": {
+      "name": req.body.order.fullname,
+      "address": req.body.order.address1,
+      "address2": req.body.order.address2,
+      "city": req.body.order.city,
+      "state": req.body.order.state,
+      "zipCode": req.body.order.zipcode,
+      "deliveryDate": req.body.order.date
+    }
+  };
+  //push order to user object
+  user.orders.push(order);
   //save the user to the database
   user.save()
     .then(function() {
@@ -151,8 +173,29 @@ app.post('/orders', authRequired, function(req, res) {
       for (var key in err.errors) {
         errorMessage += err.errors[key].message + " ";
       }
-      res.status(400).json({ "status": "fail", "message": errorMessage });
+      res.status(400).json({ "status": "fail", "message": errorMessage, "order": order });
     });
+});
+
+// process payment with stripe
+app.post('/charge', function(req, res) {
+  var amount = req.body.amount;
+  var token = req.body.token;
+
+  stripe.charges.create({
+    amount: amount,
+    currency: "usd",
+    source: token
+  }, function (err, charge) {
+    if(err){
+      res.json({
+        status: "fail",
+        error: err.message
+      });
+      return;
+    }
+    res.json({status: "ok", charge: charge});
+  });
 });
 
 // returns all orders the user has previously submitted

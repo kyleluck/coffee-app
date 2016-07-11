@@ -77,12 +77,16 @@ coffeeApp.controller('OptionsController', function($scope, $http, $location) {
   $scope.orderIndividual = function() {
     order.quantity = $scope.quantityInd;
     order.grindType = $scope.grindTypeInd;
+    order.frequency = $scope.frequencyInd;
+    order.amount = $scope.quantityInd * 20;
     $location.path("/delivery");
   };
 
   $scope.orderFamily = function() {
     order.quantity = $scope.quantityFam;
     order.grindType = $scope.grindTypeFam;
+    order.frequency = $scope.frequencyFam;
+    order.amount = $scope.quantityFam * 20;
     $location.path("/delivery");
   };
 
@@ -108,17 +112,48 @@ coffeeApp.controller('DeliveryController', function($scope, $location) {
   };
 });
 
-coffeeApp.controller('PaymentController', function($scope, $http, $location) {
+coffeeApp.controller('PaymentController', function($scope, $http, $location, $cookies) {
   // attach current order information to scope
   $scope.order = order;
-  console.log(order);
+  var amount = order.amount;
+  var userToken = $cookies.get('token');
+
   $scope.processPayment = function() {
+    //stripe
+    // Creates a CC handler which could be reused.
+    var handler = StripeCheckout.configure({
+      // my testing public publishable key
+      key: 'pk_test_kRwESRwnQ8TEmXsuiOIRyHgP',
+      locale: 'auto',
+      // once the credit card is validated, this function will be called
+      token: function(token) {
+        // Make the request to the backend to actually make a charge
+        // This is the token representing the validated credit card
+        var tokenId = token.id;
+        $http.post(API + '/charge', { amount: amount, token: tokenId })
+          .then(function(data) {
+            console.log('Charge:', data);
+            // alert('You were charged $' + (data.data.charge.amount / 100));
+            $location.path('/thankyou');
+          })
+          .catch(function(err) {
+            //alert user of error
+          });
+      }
+    });
+    // open the handler - this will open a dialog
+    // with a form with it to prompt for credit card
+    // information from the user
+    handler.open({
+      name: 'DC Roasters',
+      description: 'Pay via Stripe...',
+      amount: amount
+    });
+
     //save order to the database
-    $http.post(API + '/orders', { order: order })
+    $http.post(API + '/orders', { order: order, token: userToken })
       .then(function(response) {
-        console.log(response);
-        //redirect to thank you screenshot
-        //$location.path("/thankyou");
+        //do nothing
       })
       .catch(function(err) {
         //handle error
@@ -154,7 +189,7 @@ coffeeApp.controller('LoginController', function($scope, $http, $location, $root
 
 
 coffeeApp.controller("ThankyouController", function($location, $scope){
-// Redirecting the customer to options page
+  // Redirecting the customer to options page
   $scope.directToOptions = function(){
     $location.path("/options");
   };
