@@ -12,27 +12,50 @@
       <img src="images/solo-drinker.jpg" alt="solo drinker" class="img-responsive well-image">
       <form name="individualForm" ng-submit="individualForm.$valid && orderIndividual()" novalidate>
         <div class="row">
-          <div class="col col-xs-6 option-labels">
+          <div class="col col-xs-6 text-right">
             <p>Pounds:</p>
-            <p>Price per Pound:</p>
-            <p>Total:</p>
-            <p>Grind type:</p>
-            <p>Delivery Frequency:</p>
           </div>
-          <div class="col col-xs-6 option-values">
+          <div class="col col-xs-6 text-left">
             <input type="number" ng-model="quantityInd" min="1" ng-init="quantityInd=1" required/>
             <div ng-messages="individualForm.quantityInd.$error" ng-if="individualForm.quantityInd.$dirty">
               <div ng-message="min">Minimum number of 1 pound is required</div>
             </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Price per Pound:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <p ng-model="pricePerCupInd" ng-init="pricePerCupInd=20">$20.00</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Total:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <p>{{ quantityInd * pricePerCupInd | currency }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Grind type:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <select name="grindTypeInd" ng-model="grindTypeInd" ng-options="option as option for option in options" required>
               <option></option>
             </select>
             <div ng-messages="individualForm.grindTypeInd.$error" ng-if="individualForm.grindTypeInd.$dirty">
               <div ng-message="required">Please select a grind type</div>
             </div>
-            <br>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Delivery Frequency:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <select name="frequencyInd" ng-model="frequencyInd" required>
               <option value="monthly">Weekly</option>
               <option value="monthly">Monthly</option>
@@ -54,27 +77,50 @@
       <img src="images/coffee-drinkers.jpg" alt="family drinkers" class="img-responsive well-image">
       <form name="familyForm" ng-submit="familyForm.$valid && orderFamily()" novalidate>
         <div class="row">
-          <div class="col col-xs-6 option-labels">
+          <div class="col col-xs-6 text-right">
             <p>Pounds:</p>
-            <p>Price per Pound:</p>
-            <p>Total:</p>
-            <p>Grind type:</p>
-            <p>Delivery Frequency:</p>
           </div>
-          <div class="col col-xs-6 option-values">
+          <div class="col col-xs-6 text-left">
             <input type="number" ng-model="quantityFam" min="1" ng-init="quantityFam=1" required/>
             <div ng-messages="familyForm.quantityFam.$error" ng-if="familyForm.quantityFam.$dirty">
               <div ng-message="min">Minimum number of 1 pound is required</div>
             </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Price per Pound:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <p ng-model="pricePerCupFam" ng-init="pricePerCupFam=20">$20.00</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Total:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <p>{{ quantityFam * pricePerCupFam | currency }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Grind type:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <select name="grindTypeFam" ng-model="grindTypeFam" ng-options="option as option for option in options" required>
               <option></option>
             </select>
             <div ng-messages="familyForm.grindTypeFam.$error" ng-if="familyForm.grindTypeFam.$dirty">
               <div ng-message="required">Please select a grind type</div>
             </div>
-            <br>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-xs-6 text-right">
+            <p>Delivery Frequency:</p>
+          </div>
+          <div class="col col-xs-6 text-left">
             <select name="frequencyFam" ng-model="frequencyFam" required>
               <option value="monthly">Weekly</option>
               <option value="monthly">Monthly</option>
@@ -88,5 +134,5 @@
         <button type="submit" class="btn green-btn" ng-disabled="familyForm.$invalid">Order</button>
       </form>
     </div>
-  </div>
-</div>
+  </div> <!-- end second overall column -->
+</div> <!-- end row -->
