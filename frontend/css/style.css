@@ -45,8 +45,9 @@ body {
   background-size: cover;
 }
 
-.hero-text {
-  vertical-align: middle;
+.hero, .howitworks, .one, .two, .three {
+  display: flex;
+  align-items: center;
 }
 
 .one {
@@ -71,7 +72,6 @@ body {
   -webkit-transform: rotate(-15deg); /* Safari */
   transform: rotate(-15deg); /* Standard syntax */
   margin-left: 50px;
-  margin-top: 50px;
 }
 
 .three {
