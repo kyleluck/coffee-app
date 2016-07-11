@@ -1,35 +1,53 @@
 <div class="row">
   <div class="col col-xs-12 col-md-6 col-md- text-center">
       <h3>Please enter your shipping information.</h3>
-      <form ng-submit="processDeliveryInfo()" novalidate>
+      <form ng-submit="processDeliveryInfo()" name="deliveryForm" novalidate>
         <label for="fullname">Full Name</label>
         <br>
-        <input type="text" id="fullname" ng-model="fullname" required/>
+        <input type="text" name="fullname" ng-model="fullname" required/>
         <br>
+        <div ng-messages="deliveryForm.fullname.$error" ng-if="deliveryForm.fullname.$dirty">
+          <div ng-message="required">Fullname is required</div>
+        </div>
         <label for="address1">Address Line 1</label>
         <br>
-        <input type="text" id="address1" ng-model="address1" required/>
+        <input type="text" name="address1" ng-model="address1" required/>
         <br>
+        <div ng-messages="deliveryForm.address1.$error" ng-if="deliveryForm.address1.$dirty">
+          <div ng-message="required">Address is required</div>
+        </div>
         <label for="address2">Address Line 2</label>
         <br>
-        <input type="text" id="address2" ng-model="address2"/>
+        <input type="text" name="address2" ng-model="address2"/>
         <br>
         <label for="city">City</label>
         <br>
-        <input type="text" id="city" ng-model="city" required/>
+        <input type="text" name="city" ng-model="city" required/>
         <br>
+        <div ng-messages="deliveryForm.city.$error" ng-if="deliveryForm.city.$dirty">
+          <div ng-message="required">City is required</div>
+        </div>
         <label for="state">State</label>
         <br>
-        <input type="text" id="state" ng-model="state" required/>
+        <input type="text" name="state" ng-model="state" required/>
         <br>
+        <div ng-messages="deliveryForm.state.$error" ng-if="deliveryForm.state.$dirty">
+          <div ng-message="required">State is required</div>
+        </div>
         <label for="zipcode">Zip Code</label>
         <br>
-        <input type="text" id="zipcode" ng-model="zipcode" required/>
+        <input type="text" name="zipcode" ng-model="zipcode" required/>
         <br>
+        <div ng-messages="deliveryForm.zipcode.$error" ng-if="deliveryForm.zipcode.$dirty">
+          <div ng-message="required">Zipcode is required</div>
+        </div>
         <label for="date">Delivery Date</label>
         <br>
-        <input type="date" id="date" ng-model="date" required/>
+        <input type="date" name="date" ng-model="date" required/>
         <br>
+        <div ng-messages="deliveryForm.date.$error" ng-if="deliveryForm.date.$dirty">
+          <div ng-message="required">Delivery date is required</div>
+        </div>
         <button type="submit" class="green-btn btn">Submit</button>
       </form>
   </div>
