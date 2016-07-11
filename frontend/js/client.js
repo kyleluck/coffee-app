@@ -93,7 +93,12 @@ coffeeApp.controller('DeliveryController', function($scope, $location) {
     // attach form field inputs to the scope
     order.fullname = $scope.fullname;
     order.address1 = $scope.address1;
+    if ($scope.address2 === undefined) {
+      $scope.address2 = "N/A";
+    }
     order.address2 = $scope.address2;
+    order.city = $scope.city;
+    order.state = $scope.state;
     order.zipcode = $scope.zipcode;
     order.date = $scope.date;
 
@@ -106,7 +111,7 @@ coffeeApp.controller('DeliveryController', function($scope, $location) {
 coffeeApp.controller('PaymentController', function($scope, $http, $location) {
   // attach current order information to scope
   $scope.order = order;
-
+  console.log(order);
   $scope.processPayment = function() {
     //save order to the database
     $http.post(API + '/orders', { order: order })

@@ -9,7 +9,7 @@
         <p>Coffee in Pounds</p>
       </div>
       <div class="col col-xs-6">
-        <p>{{ order.grind }}</p>
+        <p>{{ order.grindType }}</p>
         <p>{{ order.frequency }}</p>
         <p>{{ order.quantity }}</p>
       </div>
@@ -26,13 +26,13 @@
         <p>Delivery Date</p>
       </div>
       <div class="col col-xs-6">
-        <p>{{ order.name }}</p>
+        <p>{{ order.fullname }}</p>
         <p>{{ order.address1 }}</p>
         <p>{{ order.address2 }}</p>
         <p>{{ order.city }}</p>
         <p>{{ order.state }}</p>
         <p>{{ order.zipcode }}</p>
-        <p>{{ order.date }}</p>
+        <p>{{ order.date | date: 'LLLL dd, yyyy'}}</p>
       </div>
     </div>
     <h3>Current Charge</h3>
@@ -43,9 +43,9 @@
         <p>Total</p>
       </div>
       <div class="col col-xs-6">
-        <p>{{ order.quantity }} x $20.00/lb = {{ order.quantity * 20 }}</p>
+        <p>{{ order.quantity }}</p>
         <p>FREE!</p>
-        <p>{{ order.quantity * 20 }}</p>
+        <p>{{ order.quantity }} x $20.00/lb = {{ order.quantity * 20 | currency }}</p>
       </div>
     </div>
     <button type="submit" class="btn green-btn" ng-click="processPayment()">Pay with Credit Card</button>
