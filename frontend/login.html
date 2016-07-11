@@ -7,12 +7,16 @@
         <br>
         <input type="text" ng-model="username" name="username" class="formInput" required/>
         <br>
-        <p ng-show="loginForm.username.$error.required && !registerForm.username.$pristine">Username is required</p>
+        <div ng-messages="loginForm.username.$error" ng-if="loginForm.username.$dirty">
+          <div ng-message="required">Username is required</div>
+        </div>
         <label for="password">Password:</label>
         <br>
         <input type="password" ng-model="password" name="password" class="formInput" required/>
         <br>
-        <p ng-show="loginForm.password.$error.required && !registerForm.password.$pristine">Password is required</p>
+        <div ng-messages="loginForm.password.$error" ng-if="loginForm.password.$dirty">
+          <div ng-message="required">Password is required</div>
+        </div>
         <p ng-show="loginFailed">Username or password incorrect.</p>
         <button type="submit" class="btn green-btn">Login</button>
         <button ng-click="registration()" type="button" class="btn green-btn">Sign up</button>
