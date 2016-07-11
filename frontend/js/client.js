@@ -13,31 +13,31 @@ coffeeApp.config(function($routeProvider) {
   $routeProvider
     .when('/', {
       controller: 'HomeController',
-      templateUrl: 'home.html'
+      templateUrl: 'home.html',
     })
     .when('/options/', {
       controller: 'OptionsController',
-      templateUrl: 'options.html'
+      templateUrl: 'options.html',
     })
     .when('/delivery', {
       controller: 'DeliveryController',
-      templateUrl: 'delivery.html'
+      templateUrl: 'delivery.html',
     })
     .when('/payment', {
       controller: 'PaymentController',
-      templateUrl: 'payment.html'
+      templateUrl: 'payment.html',
     })
     .when('/thankyou', {
       controller: 'ThankyouController',
-      templateUrl: 'thankyou.html'
+      templateUrl: 'thankyou.html',
     })
     .when('/login', {
       controller: 'LoginController',
-      templateUrl: 'login.html'
+      templateUrl: 'login.html',
     })
     .when('/register', {
       controller: 'RegisterController',
-      templateUrl: 'register.html'
+      templateUrl: 'register.html',
     })
     .otherwise({ redirectTo: '/'});
 });
@@ -57,6 +57,7 @@ coffeeApp.run(function($rootScope, $location, $cookies) {
 });
 
 coffeeApp.controller('HomeController', function($scope, $location) {
+  $scope.isActive = true;
   // directToOptions function redirect the user to /options
   $scope.directToOptions = function(){
     $location.path("/options");
@@ -64,6 +65,7 @@ coffeeApp.controller('HomeController', function($scope, $location) {
 });
 
 coffeeApp.controller('OptionsController', function($scope, $http, $location) {
+  $scope.isActive = true;
   // call the backend to receive a list of coffee type options
   $http.get(API + '/options')
     .then(function(response) {
