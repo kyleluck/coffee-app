@@ -19,7 +19,7 @@
             <p>Grind type:</p>
           </div>
           <div class="col col-xs-6 option-values">
-            <input type="number" ng-model="quantityInd" min="1" required/>
+            <input type="number" ng-model="quantityInd" min="1" ng-init="quantityInd=1" required/>
             <div ng-messages="individualForm.quantityInd.$error" ng-if="individualForm.quantityInd.$dirty">
               <div ng-message="min">Minimum number of 1 cup is required</div>
             </div>
@@ -33,7 +33,7 @@
             </div>
           </div>
         </div>
-        <button type="submit" class="btn green-btn">Order</button>
+        <button type="submit" class="btn green-btn" ng-disabled="individualForm.$invalid">Order</button>
       </form>
     </div>
   </div>
@@ -65,7 +65,7 @@
             </div>
           </div>
         </div>
-        <button type="submit" class="btn green-btn">Order</button>
+        <button type="submit" class="btn green-btn" ng-disabled="familyForm.$invalid">Order</button>
       </form>
     </div>
   </div>
