@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col col-xs-12 col-md-6 col-md- text-center">
       <h3>Please enter your shipping information.</h3>
-      <form ng-submit="processDeliveryInfo()" name="deliveryForm" novalidate>
+      <form name="deliveryForm" ng-submit="deliveryForm.$valid && processDeliveryInfo()" novalidate>
         <label for="fullname">Full Name</label>
         <br>
         <input type="text" name="fullname" ng-model="fullname" required/>
@@ -48,7 +48,7 @@
         <div ng-messages="deliveryForm.date.$error" ng-if="deliveryForm.date.$dirty">
           <div ng-message="required">Delivery date is required</div>
         </div>
-        <button type="submit" class="green-btn btn">Submit</button>
+        <button type="submit" class="green-btn btn" ng-disabled="deliveryForm.$invalid">Submit</button>
       </form>
   </div>
 </div>
