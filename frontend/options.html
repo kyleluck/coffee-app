@@ -10,7 +10,7 @@
       <h3>Individual Package</h3>
       <h5>For those who drink alone</h5>
       <img src="images/solo-drinker.jpg" alt="solo drinker" class="img-responsive well-image">
-      <form name="individualForm" ng-submit="individualForm.$valid && orderIndividual()" novalidate>
+      <form name="individualForm" ng-submit="individualForm.$valid && storeOrder('ind')" novalidate>
         <div class="row">
           <div class="col col-xs-6 text-right">
             <p>Pounds:</p>
@@ -75,7 +75,7 @@
       <h3>Family Package</h3>
       <h5>For those who drink together</h5>
       <img src="images/coffee-drinkers.jpg" alt="family drinkers" class="img-responsive well-image">
-      <form name="familyForm" ng-submit="familyForm.$valid && orderFamily()" novalidate>
+      <form name="familyForm" ng-submit="familyForm.$valid && storeOrder('fam')" novalidate>
         <div class="row">
           <div class="col col-xs-6 text-right">
             <p>Pounds:</p>

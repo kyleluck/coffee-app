@@ -3,10 +3,6 @@ var coffeeApp = angular.module('coffeeApp', ['ngRoute', 'ngCookies', 'ngMessages
 
 var API = "http://localhost:8000";
 
-var order = {
-  quantity: 0,
-  grindType: ""
-};
 
 // define routing
 coffeeApp.config(function($routeProvider) {
@@ -56,6 +52,23 @@ coffeeApp.run(function($rootScope, $location, $cookies) {
   });
 });
 
+/* change global variable to service that uses cookies */
+
+coffeeApp.service('OrderService', function($cookies) {
+  this.saveData = function(data) {
+    $cookies.put('orderdata', JSON.stringify(data));
+  };
+  this.getData = function() {
+    try {
+      return JSON.parse($cookies.get('orderdata'));
+    }
+    catch(e) {
+      return {};
+    }
+  };
+});
+
+
 coffeeApp.controller('HomeController', function($scope, $location) {
   $scope.isActive = true;
   // directToOptions function redirect the user to /options
@@ -64,7 +77,7 @@ coffeeApp.controller('HomeController', function($scope, $location) {
   };
 });
 
-coffeeApp.controller('OptionsController', function($scope, $http, $location) {
+coffeeApp.controller('OptionsController', function($scope, $http, $location, OrderService) {
   $scope.isActive = true;
   // call the backend to receive a list of coffee type options
   $http.get(API + '/options')
@@ -76,46 +89,50 @@ coffeeApp.controller('OptionsController', function($scope, $http, $location) {
       console.error(err);
     });
 
-  $scope.orderIndividual = function() {
-    order.quantity = $scope.quantityInd;
-    order.grindType = $scope.grindTypeInd;
-    order.frequency = $scope.frequencyInd;
-    order.amount = $scope.quantityInd * 20;
+  $scope.storeOrder = function(type) {
+    var data = OrderService.getData();
+    if (type === 'ind') {
+      data.quantity = $scope.quantityInd;
+      data.grindType = $scope.grindTypeInd;
+      data.frequency = $scope.frequencyInd;
+      data.amount = $scope.quantityInd * 20;
+    } else if (type === 'fam') {
+      data.quantity = $scope.quantityFam;
+      data.grindType = $scope.grindTypeFam;
+      data.frequency = $scope.frequencyFam;
+      data.amount = $scope.quantityFam * 20;
+    }
+    OrderService.saveData(data);
     $location.path("/delivery");
   };
-
-  $scope.orderFamily = function() {
-    order.quantity = $scope.quantityFam;
-    order.grindType = $scope.grindTypeFam;
-    order.frequency = $scope.frequencyFam;
-    order.amount = $scope.quantityFam * 20;
-    $location.path("/delivery");
-  };
-
 });
 
-coffeeApp.controller('DeliveryController', function($scope, $location) {
+coffeeApp.controller('DeliveryController', function($scope, $location, OrderService) {
   $scope.processDeliveryInfo = function() {
-    // attach form field inputs to the scope
-    order.fullname = $scope.fullname;
-    order.address1 = $scope.address1;
+
+    var data = OrderService.getData();
+    data.fullname = $scope.fullname;
+    data.address1 = $scope.address1;
     if ($scope.address2 === undefined) {
       $scope.address2 = "N/A";
     }
-    order.address2 = $scope.address2;
-    order.city = $scope.city;
-    order.state = $scope.state;
-    order.zipcode = $scope.zipcode;
-    order.date = $scope.date;
+    data.address2 = $scope.address2;
+    data.city = $scope.city;
+    data.state = $scope.state;
+    data.zipcode = $scope.zipcode;
+    data.date = $scope.date;
 
+    //save order data to cookie with OrderService
+    OrderService.saveData(data);
     // redirect to payment page
     $location.path("/payment");
 
   };
 });
 
-coffeeApp.controller('PaymentController', function($scope, $http, $location, $cookies) {
+coffeeApp.controller('PaymentController', function($scope, $http, $location, $cookies, OrderService) {
   // attach current order information to scope
+  var order = OrderService.getData();
   $scope.order = order;
   var amount = order.amount * 100;
   var userToken = $cookies.get('token');
