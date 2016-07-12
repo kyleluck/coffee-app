@@ -1,6 +1,7 @@
 // define app module with ngRoute and ngCookies dependencies
 var coffeeApp = angular.module('coffeeApp', ['ngRoute', 'ngCookies', 'ngMessages']);
 
+// backend running on port 8000
 var API = "http://localhost:8000";
 
 
@@ -39,7 +40,9 @@ coffeeApp.config(function($routeProvider) {
 });
 
 coffeeApp.run(function($rootScope, $location, $cookies) {
+  // on every location change start, see where the user is attempting to go
   $rootScope.$on('$locationChangeStart', function(event, nextUrl, currentUrl) {
+    // get path from url
     var path = nextUrl.split('/')[4];
     // if user is going to a restricted area and doesn't have a token stored in a cookie, redirect to the login page
     var token = $cookies.get('token');
@@ -48,6 +51,7 @@ coffeeApp.run(function($rootScope, $location, $cookies) {
       $location.path('/login');
     }
 
+    // is the user logged in? used to display login, logout and signup links
     $rootScope.isLoggedIn = function() {
       return $cookies.get('token');
     };
@@ -55,12 +59,10 @@ coffeeApp.run(function($rootScope, $location, $cookies) {
     $rootScope.logout = function() {
       $cookies.remove('token');
     };
-
   });
 });
 
-/* change global variable to service that uses cookies */
-
+// service to save order data in a cookie
 coffeeApp.service('OrderService', function($cookies) {
   this.saveData = function(data) {
     $cookies.put('orderdata', JSON.stringify(data));
@@ -96,6 +98,7 @@ coffeeApp.controller('OptionsController', function($scope, $http, $location, Ord
       console.error(err);
     });
 
+  //save the order using OrderService
   $scope.storeOrder = function(type) {
     var data = OrderService.getData();
     if (type === 'ind') {
@@ -116,7 +119,6 @@ coffeeApp.controller('OptionsController', function($scope, $http, $location, Ord
 
 coffeeApp.controller('DeliveryController', function($scope, $location, OrderService) {
   $scope.processDeliveryInfo = function() {
-
     var data = OrderService.getData();
     data.fullname = $scope.fullname;
     data.address1 = $scope.address1;
@@ -133,7 +135,6 @@ coffeeApp.controller('DeliveryController', function($scope, $location, OrderServ
     OrderService.saveData(data);
     // redirect to payment page
     $location.path("/payment");
-
   };
 });
 
@@ -145,7 +146,7 @@ coffeeApp.controller('PaymentController', function($scope, $http, $location, $co
   var userToken = $cookies.get('token');
 
   $scope.processPayment = function() {
-    //stripe
+    // stripe
     // Creates a CC handler which could be reused.
     var handler = StripeCheckout.configure({
       // my testing public publishable key
