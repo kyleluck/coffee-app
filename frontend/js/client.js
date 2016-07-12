@@ -40,8 +40,6 @@ coffeeApp.config(function($routeProvider) {
 
 coffeeApp.run(function($rootScope, $location, $cookies) {
   $rootScope.$on('$locationChangeStart', function(event, nextUrl, currentUrl) {
-    // console.log('next url', nextUrl, 'current url', currentUrl);
-    // console.log('nextUrl split', nextUrl.split('/'));
     var path = nextUrl.split('/')[4];
     // if user is going to a restricted area and doesn't have a token stored in a cookie, redirect to the login page
     var token = $cookies.get('token');
@@ -49,6 +47,15 @@ coffeeApp.run(function($rootScope, $location, $cookies) {
       $rootScope.goHere = path;
       $location.path('/login');
     }
+
+    $rootScope.isLoggedIn = function() {
+      return $cookies.get('token');
+    };
+
+    $rootScope.logout = function() {
+      $cookies.remove('token');
+    };
+
   });
 });
 
